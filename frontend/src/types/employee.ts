@@ -44,14 +44,20 @@ export type EmployeeStatus = typeof EmployeeStatus[keyof typeof EmployeeStatus];
 export interface Department {
   id: number;
   name: string;
+  code?: string;
   description?: string;
-  parentId?: number;
+  parentDepartmentId?: number;
+  parentDepartmentName?: string;
   managerId?: number;
+  managerName?: string;
   isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  employeeCount: number;
+  subDepartments: Department[];
   
-  // Navigation properties
+  // Navigation properties (for backward compatibility)
+  parentId?: number;
   parent?: Department;
   manager?: Employee;
   children?: Department[];
@@ -108,14 +114,14 @@ export interface UpdateEmployeeRequest {
 export interface CreateDepartmentRequest {
   name: string;
   description?: string;
-  parentId?: number;
+  parentDepartmentId?: number;
   managerId?: number;
 }
 
 export interface UpdateDepartmentRequest {
   name?: string;
   description?: string;
-  parentId?: number;
+  parentDepartmentId?: number;
   managerId?: number;
 }
 

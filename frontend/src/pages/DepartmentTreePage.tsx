@@ -65,8 +65,8 @@ export default function DepartmentTreePage() {
     departments.forEach(dept => {
       const node = departmentMap.get(dept.id)!;
       
-      if (dept.parentId && departmentMap.has(dept.parentId)) {
-        const parent = departmentMap.get(dept.parentId)!;
+      if (dept.parentDepartmentId && departmentMap.has(dept.parentDepartmentId)) {
+        const parent = departmentMap.get(dept.parentDepartmentId)!;
         parent.children.push(node);
       } else {
         rootDepartments.push(node);
@@ -90,7 +90,7 @@ export default function DepartmentTreePage() {
   };
 
   const handleCreate = useCallback((parentId?: number) => {
-    setEditingDepartment(parentId ? { parentId } as Department : null);
+    setEditingDepartment(parentId ? { parentDepartmentId: parentId } as Department : null);
     setDialogOpen(true);
   }, []);
 

@@ -37,7 +37,7 @@ interface DepartmentDialogProps {
 type FormData = {
   name: string;
   description: string;
-  parentId: number | '' | 'none';
+  parentDepartmentId: number | '' | 'none';
   managerId: number | '' | 'none';
   isActive: boolean;
 };
@@ -62,19 +62,19 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
     defaultValues: {
       name: '',
       description: '',
-      parentId: 'none',
+      parentDepartmentId: 'none',
       managerId: 'none',
       isActive: true,
     },
   });
 
-  const watchedParentId = watch('parentId');
+  const watchedParentId = watch('parentDepartmentId');
   const watchedIsActive = watch('isActive');
 
   // Filter out current department and its children from parent options
   const availableParents = departments?.filter(dept => 
     dept.id !== department?.id && 
-    dept.parentId !== department?.id
+    dept.parentDepartmentId !== department?.id
   ) || [];
 
   // Fetch departments when component mounts
@@ -89,7 +89,7 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
       reset({
         name: department.name,
         description: department.description || '',
-        parentId: department.parentId || 'none',
+        parentDepartmentId: department.parentDepartmentId || 'none',
         managerId: department.managerId || 'none',
         isActive: department.isActive,
       });
@@ -98,7 +98,7 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
       reset({
         name: '',
         description: '',
-        parentId: 'none',
+        parentDepartmentId: 'none',
         managerId: 'none',
         isActive: true,
       });
@@ -112,7 +112,7 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
       const payload = {
         name: data.name,
         description: data.description || undefined,
-        parentId: (data.parentId && data.parentId !== 'none') ? data.parentId : undefined,
+        parentDepartmentId: (data.parentDepartmentId && data.parentDepartmentId !== 'none') ? data.parentDepartmentId : undefined,
         managerId: (data.managerId && data.managerId !== 'none') ? data.managerId : undefined,
       };
 
@@ -173,10 +173,10 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="parentId">Phòng ban cha</Label>
+              <Label htmlFor="parentDepartmentId">Phòng ban cha</Label>
               <Select
                 value={watchedParentId?.toString() || 'none'}
-                onValueChange={(value) => setValue('parentId', value === 'none' ? 'none' : parseInt(value))}
+                onValueChange={(value) => setValue('parentDepartmentId', value === 'none' ? 'none' : parseInt(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn phòng ban cha (không bắt buộc)" />
