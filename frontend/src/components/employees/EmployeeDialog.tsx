@@ -123,7 +123,8 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   useEffect(() => {
     fetchDepartments();
     fetchPositions();
-  }, [fetchDepartments, fetchPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally excluding functions to prevent infinite loop
 
   // Filter potential managers (employees in same department, excluding current employee)
   // This would require an additional API call to get employees by department

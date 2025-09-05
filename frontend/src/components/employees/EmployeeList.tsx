@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Search, Plus, Filter, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,49 +26,79 @@ export const EmployeeList: React.FC = () => {
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
+  // Use ref to store current filters to avoid stale closure
+  const currentFiltersRef = useRef(filters);
+  const currentSearchRef = useRef(searchQuery);
+  
+  // Update refs when state changes
+  currentFiltersRef.current = filters;
+  currentSearchRef.current = searchQuery;
+
   const { employees, loading, fetchEmployees } = useEmployees();
   const { departments, fetchDepartments } = useDepartments();
   const { positions, fetchPositions } = usePositions();
 
-  // Load employees when component mounts or filters change
+  // Memoize query params to prevent unnecessary re-renders
+  const queryParams = useMemo(() => ({
+    ...filters,
+    search: searchQuery || undefined
+  }), [filters, searchQuery]);
+
+  // Load employees when component mounts or query params change
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchEmployees({
-        ...filters,
-        search: searchQuery || undefined
-      });
+      fetchEmployees(queryParams);
     }, 300); // Debounce search
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, filters, fetchEmployees]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryParams]); // Only depend on memoized queryParams
 
   // Fetch departments and positions when component mounts
   useEffect(() => {
     fetchDepartments();
     fetchPositions();
-  }, [fetchDepartments, fetchPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally excluding functions to prevent infinite loop
 
-  const handleSearch = (value: string) => {
+  const handleSearch = useCallback((value: string) => {
     setSearchQuery(value);
     setFilters(prev => ({ ...prev, page: 1 })); // Reset to first page
-  };
+  }, []);
 
-  const handleFilterChange = (key: keyof EmployeeQueryParams, value: string | number | undefined) => {
+  const handleFilterChange = useCallback((key: keyof EmployeeQueryParams, value: string | number | undefined) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
       page: 1 // Reset to first page when filter changes
     }));
-  };
+  }, []);
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setFilters(prev => ({ ...prev, page }));
-  };
+  }, []);
 
-  const clearFilters = () => {
+  // Memoize refresh function to prevent unnecessary re-renders
+  const refreshEmployees = useCallback(() => {
+    const currentParams = {
+      ...currentFiltersRef.current,
+      search: currentSearchRef.current || undefined
+    };
+    fetchEmployees(currentParams);
+  }, [fetchEmployees]);
+
+  // Memoize pagination object to prevent unnecessary re-renders
+  const paginationProps = useMemo(() => ({
+    page: employees?.page || 1,
+    pageSize: employees?.pageSize || 10,
+    totalItems: employees?.totalItems || 0,
+    totalPages: employees?.totalPages || 0
+  }), [employees?.page, employees?.pageSize, employees?.totalItems, employees?.totalPages]);
+
+  const clearFilters = useCallback(() => {
     setSearchQuery('');
     setFilters({ page: 1, pageSize: 10 });
-  };
+  }, []);
 
   const activeFiltersCount = Object.keys(filters).filter(key => 
     key !== 'page' && key !== 'pageSize' && filters[key as keyof EmployeeQueryParams]
@@ -236,14 +266,9 @@ export const EmployeeList: React.FC = () => {
       <EmployeeTable
         data={employees?.data || []}
         loading={loading}
-        pagination={{
-          page: employees?.page || 1,
-          pageSize: employees?.pageSize || 10,
-          totalItems: employees?.totalItems || 0,
-          totalPages: employees?.totalPages || 0
-        }}
+        pagination={paginationProps}
         onPageChange={handlePageChange}
-        onRefresh={() => fetchEmployees(filters)}
+        onRefresh={refreshEmployees}
       />
 
       {/* Create Employee Dialog */}
@@ -252,7 +277,7 @@ export const EmployeeList: React.FC = () => {
         onOpenChange={setIsCreateDialogOpen}
         onSuccess={() => {
           setIsCreateDialogOpen(false);
-          fetchEmployees(filters);
+          refreshEmployees();
         }}
       />
     </div>

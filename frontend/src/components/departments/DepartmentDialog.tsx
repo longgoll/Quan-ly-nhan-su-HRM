@@ -80,7 +80,8 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
   // Fetch departments when component mounts
   useEffect(() => {
     fetchDepartments();
-  }, [fetchDepartments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally excluding functions to prevent infinite loop
 
   useEffect(() => {
     if (department) {
