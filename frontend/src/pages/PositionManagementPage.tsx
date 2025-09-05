@@ -74,10 +74,8 @@ export default function PositionManagementPage() {
                          position.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          position.departmentName?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesDepartment = departmentFilter === 'all' || 
-                             position.departmentId?.toString() === departmentFilter;
-    
-    const matchesLevel = levelFilter === 'all' || 
+  const matchesDepartment = departmentFilter === 'all' || 
+                           (departmentFilter === '0' ? !position.departmentId : position.departmentId?.toString() === departmentFilter);    const matchesLevel = levelFilter === 'all' || 
                         position.level.toString() === levelFilter;
 
     return matchesSearch && matchesDepartment && matchesLevel;
@@ -143,6 +141,7 @@ export default function PositionManagementPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tất cả phòng ban</SelectItem>
+                <SelectItem value="0">Không phân công</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id.toString()}>
                     {dept.name}

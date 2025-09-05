@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { positionApi } from '@/api/position';
 import type { Position, Department, CreatePositionRequest, UpdatePositionRequest } from '@/types/employee';
 import { toast } from 'sonner';
@@ -45,7 +45,7 @@ export function PositionDialog({
         code: position.code || '',
         description: position.description || '',
         requirements: position.requirements || '',
-        departmentId: position.departmentId?.toString() || '',
+        departmentId: position.departmentId?.toString() || '0',
         level: position.level,
         minSalary: position.minSalary?.toString() || '',
         maxSalary: position.maxSalary?.toString() || '',
@@ -57,7 +57,7 @@ export function PositionDialog({
         code: '',
         description: '',
         requirements: '',
-        departmentId: '',
+        departmentId: '0',
         level: 1,
         minSalary: '',
         maxSalary: '',
@@ -81,7 +81,7 @@ export function PositionDialog({
         code: formData.code.trim() || undefined,
         description: formData.description.trim() || undefined,
         requirements: formData.requirements.trim() || undefined,
-        departmentId: formData.departmentId ? parseInt(formData.departmentId) : undefined,
+        departmentId: formData.departmentId && formData.departmentId !== '0' ? parseInt(formData.departmentId) : undefined,
         level: formData.level,
         minSalary: formData.minSalary ? parseFloat(formData.minSalary) : undefined,
         maxSalary: formData.maxSalary ? parseFloat(formData.maxSalary) : undefined,
@@ -118,6 +118,9 @@ export function PositionDialog({
           <DialogTitle>
             {position ? 'Chỉnh sửa vị trí' : 'Thêm vị trí mới'}
           </DialogTitle>
+          <DialogDescription>
+            {position ? 'Cập nhật thông tin vị trí công việc' : 'Tạo vị trí công việc mới trong hệ thống'}
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -156,7 +159,7 @@ export function PositionDialog({
                   <SelectValue placeholder="Chọn phòng ban" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Không phân công</SelectItem>
+                  <SelectItem value="0">Không phân công</SelectItem>
                   {departments.map((dept) => (
                     <SelectItem key={dept.id} value={dept.id.toString()}>
                       {dept.name}
