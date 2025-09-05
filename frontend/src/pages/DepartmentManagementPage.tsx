@@ -139,7 +139,7 @@ const DepartmentManagementPage: React.FC = () => {
                       {department.description || '-'}
                     </TableCell>
                     <TableCell>
-                      {department.parent?.name || '-'}
+                      {department.parentDepartmentName || '-'}
                     </TableCell>
                     <TableCell>
                       {department.manager?.fullName || '-'}
