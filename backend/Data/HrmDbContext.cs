@@ -89,11 +89,11 @@ namespace backend.Data
 
                 entity.HasIndex(e => e.EmployeeCode)
                     .IsUnique()
-                    .HasFilter("[EmployeeCode] IS NOT NULL");
+                    .HasFilter("\"EmployeeCode\" IS NOT NULL");
 
                 entity.HasIndex(e => e.IdentityNumber)
                     .IsUnique()
-                    .HasFilter("[IdentityNumber] IS NOT NULL");
+                    .HasFilter("\"IdentityNumber\" IS NOT NULL");
 
                 entity.Property(e => e.Gender)
                     .HasConversion<string>();
@@ -124,7 +124,7 @@ namespace backend.Data
 
                 entity.HasIndex(e => e.Code)
                     .IsUnique()
-                    .HasFilter("[Code] IS NOT NULL");
+                    .HasFilter("\"Code\" IS NOT NULL");
 
                 // Self-referencing relationship for ParentDepartment
                 entity.HasOne(e => e.ParentDepartment)
@@ -146,7 +146,7 @@ namespace backend.Data
 
                 entity.HasIndex(e => e.Code)
                     .IsUnique()
-                    .HasFilter("[Code] IS NOT NULL");
+                    .HasFilter("\"Code\" IS NOT NULL");
             });
 
             // Configure EmployeeContract entity
@@ -228,7 +228,7 @@ namespace backend.Data
 
                 entity.HasIndex(e => e.Code)
                     .IsUnique()
-                    .HasFilter("[Code] IS NOT NULL");
+                    .HasFilter("\"Code\" IS NOT NULL");
 
                 entity.Property(e => e.Type)
                     .HasConversion<string>();

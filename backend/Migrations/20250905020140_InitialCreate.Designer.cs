@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(HrmDbContext))]
-    [Migration("20250904030618_AddWorkScheduleAttendanceLeaveManagement")]
-    partial class AddWorkScheduleAttendanceLeaveManagement
+    [Migration("20250905020140_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -301,7 +301,7 @@ namespace backend.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique()
-                        .HasFilter("[Code] IS NOT NULL");
+                        .HasFilter("\"Code\" IS NOT NULL");
 
                     b.HasIndex("ManagerId");
 
@@ -502,11 +502,11 @@ namespace backend.Migrations
 
                     b.HasIndex("EmployeeCode")
                         .IsUnique()
-                        .HasFilter("[EmployeeCode] IS NOT NULL");
+                        .HasFilter("\"EmployeeCode\" IS NOT NULL");
 
                     b.HasIndex("IdentityNumber")
                         .IsUnique()
-                        .HasFilter("[IdentityNumber] IS NOT NULL");
+                        .HasFilter("\"IdentityNumber\" IS NOT NULL");
 
                     b.HasIndex("PositionId");
 
@@ -980,7 +980,7 @@ namespace backend.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique()
-                        .HasFilter("[Code] IS NOT NULL");
+                        .HasFilter("\"Code\" IS NOT NULL");
 
                     b.HasIndex("DepartmentId");
 
@@ -1344,7 +1344,7 @@ namespace backend.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique()
-                        .HasFilter("[Code] IS NOT NULL");
+                        .HasFilter("\"Code\" IS NOT NULL");
 
                     b.ToTable("WorkShifts");
                 });

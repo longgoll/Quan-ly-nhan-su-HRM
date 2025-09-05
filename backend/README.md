@@ -210,3 +210,24 @@ API Documentation có sẵn tại swagger khi chạy development
 ## Liên hệ
 
 Nếu có vấn đề gì, vui lòng tạo issue hoặc liên hệ team phát triển.
+
+## Ghi chú Database
+- Sử dụng PostgreSQL
+Remove-Item -Path "Migrations\*" -Force
+dotnet ef database drop --force
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+
+##  Các bảng đã được tạo trong database:
+Users - Quản lý người dùng
+Employees - Thông tin nhân viên
+Departments - Phòng ban
+Positions - Chức vụ
+EmployeeContracts - Hợp đồng nhân viên
+WorkHistories - Lịch sử công việc
+Rewards & Disciplines - Khen thưởng & kỷ luật
+EmployeeDocuments - Tài liệu nhân viên
+WorkShifts & EmployeeShiftAssignments - Ca làm việc
+Attendances & AttendanceDetails - Chấm công
+LeavePolicies & LeaveRequests - Quản lý nghỉ phép
+PublicHolidays - Ngày lễ
