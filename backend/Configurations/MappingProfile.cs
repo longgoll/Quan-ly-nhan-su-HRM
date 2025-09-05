@@ -24,7 +24,10 @@ namespace backend.Configurations
                 .ForMember(dest => dest.Disciplines, opt => opt.Ignore())
                 .ForMember(dest => dest.Documents, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => EmployeeStatus.Active))
-                .ForMember(dest => dest.TerminationDate, opt => opt.Ignore());
+                .ForMember(dest => dest.TerminationDate, opt => opt.Ignore())
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DateOfBirth, DateTimeKind.Utc)))
+                .ForMember(dest => dest.HireDate, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.HireDate, DateTimeKind.Utc)))
+                .ForMember(dest => dest.IdentityIssueDate, opt => opt.MapFrom(src => src.IdentityIssueDate.HasValue ? DateTime.SpecifyKind(src.IdentityIssueDate.Value, DateTimeKind.Utc) : (DateTime?)null));
 
             CreateMap<UpdateEmployeeDto, Employee>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -41,7 +44,9 @@ namespace backend.Configurations
                 .ForMember(dest => dest.Documents, opt => opt.Ignore())
                 .ForMember(dest => dest.EmployeeCode, opt => opt.Ignore())
                 .ForMember(dest => dest.HireDate, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DateOfBirth, DateTimeKind.Utc)))
+                .ForMember(dest => dest.IdentityIssueDate, opt => opt.MapFrom(src => src.IdentityIssueDate.HasValue ? DateTime.SpecifyKind(src.IdentityIssueDate.Value, DateTimeKind.Utc) : (DateTime?)null));
 
             CreateMap<Employee, EmployeeDto>()
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User.Username))

@@ -36,7 +36,8 @@ import type {
   CreateEmployeeRequest, 
   UpdateEmployeeRequest,
   MaritalStatus,
-  EmployeeStatus 
+  EmployeeStatus,
+  Gender
 } from '@/types/employee';
 
 interface EmployeeDialogProps {
@@ -59,20 +60,27 @@ type FormData = {
   managerId: number | 'none';
   hireDate: Date | undefined;
   status: EmployeeStatus;
+  gender: Gender | 'none';
 };
 
 const maritalStatusOptions = [
-  { value: 'Single', label: 'Độc thân' },
-  { value: 'Married', label: 'Đã kết hôn' },
-  { value: 'Divorced', label: 'Đã ly hôn' },
-  { value: 'Widowed', label: 'Góa phụ' },
+  { value: 1, label: 'Độc thân' },
+  { value: 2, label: 'Đã kết hôn' },
+  { value: 3, label: 'Đã ly hôn' },
+  { value: 4, label: 'Góa phụ' },
+];
+
+const genderOptions = [
+  { value: 1, label: 'Nam' },
+  { value: 2, label: 'Nữ' },
+  { value: 3, label: 'Khác' },
 ];
 
 const statusOptions = [
-  { value: 'Active', label: 'Đang làm việc' },
-  { value: 'Inactive', label: 'Tạm nghỉ' },
-  { value: 'Terminated', label: 'Đã nghỉ việc' },
-  { value: 'OnLeave', label: 'Đang nghỉ phép' },
+  { value: 1, label: 'Đang làm việc' },
+  { value: 2, label: 'Tạm nghỉ' },
+  { value: 3, label: 'Đã nghỉ việc' },
+  { value: 4, label: 'Đang nghỉ phép' },
 ];
 
 export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
@@ -106,7 +114,8 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       positionId: 'none',
       managerId: 'none',
       hireDate: new Date(),
-      status: 'Active',
+      status: 1, // Active
+      gender: 'none',
     },
   });
 
@@ -146,6 +155,7 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         managerId: employee.managerId || 'none',
         hireDate: new Date(employee.hireDate),
         status: employee.status,
+        gender: 'none', // We'll need to add gender to Employee interface later
       });
     } else {
       // Reset form for creating
@@ -161,7 +171,8 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         positionId: 'none',
         managerId: 'none',
         hireDate: new Date(),
-        status: 'Active',
+        status: 1, // Active
+        gender: 'none',
       });
     }
   }, [employee, reset]);
@@ -170,31 +181,61 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
     try {
       setLoading(true);
 
-      const payload = {
-        fullName: data.fullName,
-        email: data.email || undefined,
-        phoneNumber: data.phoneNumber || undefined,
-        dateOfBirth: data.dateOfBirth ? format(data.dateOfBirth, 'yyyy-MM-dd') : undefined,
+      if (!data.hireDate) {
+        throw new Error('Hire date is required');
+      }
+
+      if (data.gender === 'none') {
+        throw new Error('Gender is required');
+      }
+
+      // Split fullName into firstName and lastName
+      const nameParts = data.fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      if (!firstName || !lastName) {
+        throw new Error('Please provide both first and last name');
+      }
+
+      const payload: CreateEmployeeRequest = {
+        userId: 1, // TODO: Get actual user ID - for now using placeholder
+        firstName,
+        lastName,
+        dateOfBirth: data.dateOfBirth ? format(data.dateOfBirth, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+        gender: data.gender,
+        identityNumber: data.idNumber || undefined,
         address: data.address || undefined,
-        idNumber: data.idNumber || undefined,
+        personalPhoneNumber: data.phoneNumber || undefined,
+        personalEmail: data.email || undefined,
         maritalStatus: data.maritalStatus !== 'none' ? data.maritalStatus : undefined,
         departmentId: data.departmentId !== 'none' ? data.departmentId : undefined,
         positionId: data.positionId !== 'none' ? data.positionId : undefined,
-        managerId: data.managerId !== 'none' ? data.managerId : undefined,
-        hireDate: format(data.hireDate!, 'yyyy-MM-dd'),
+        directManagerId: data.managerId !== 'none' ? data.managerId : undefined,
+        hireDate: format(data.hireDate, 'yyyy-MM-dd'),
       };
 
       let success = false;
       
       if (employee) {
-        // Update existing employee
-        success = await updateEmployee(employee.id, {
-          ...payload,
+        // Update existing employee - this needs different handling
+        const updatePayload = {
+          fullName: data.fullName,
+          email: data.email || undefined,
+          phoneNumber: data.phoneNumber || undefined,
+          dateOfBirth: data.dateOfBirth ? format(data.dateOfBirth, 'yyyy-MM-dd') : undefined,
+          address: data.address || undefined,
+          idNumber: data.idNumber || undefined,
+          maritalStatus: data.maritalStatus !== 'none' ? data.maritalStatus : undefined,
+          departmentId: data.departmentId !== 'none' ? data.departmentId : undefined,
+          positionId: data.positionId !== 'none' ? data.positionId : undefined,
+          managerId: data.managerId !== 'none' ? data.managerId : undefined,
           status: data.status,
-        } as UpdateEmployeeRequest);
+        };
+        success = await updateEmployee(employee.id, updatePayload as UpdateEmployeeRequest);
       } else {
         // Create new employee
-        success = await createEmployee(payload as CreateEmployeeRequest);
+        success = await createEmployee(payload);
       }
 
       if (success) {
@@ -202,6 +243,7 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       }
     } catch (error) {
       console.error('Error saving employee:', error);
+      // TODO: Show error toast to user
     } finally {
       setLoading(false);
     }
@@ -301,8 +343,8 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="maritalStatus">Tình trạng hôn nhân</Label>
                   <Select
-                    value={watch('maritalStatus') as string || 'none'}
-                    onValueChange={(value) => setValue('maritalStatus', value === 'none' ? 'none' : value as MaritalStatus)}
+                    value={watch('maritalStatus')?.toString() || 'none'}
+                    onValueChange={(value) => setValue('maritalStatus', value === 'none' ? 'none' : parseInt(value) as MaritalStatus)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn tình trạng hôn nhân" />
@@ -310,7 +352,27 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
                     <SelectContent>
                       <SelectItem value="none">Chọn tình trạng hôn nhân</SelectItem>
                       {maritalStatusOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                        <SelectItem key={option.value} value={option.value.toString()}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Giới tính *</Label>
+                  <Select
+                    value={watch('gender')?.toString() || 'none'}
+                    onValueChange={(value) => setValue('gender', value === 'none' ? 'none' : parseInt(value) as Gender)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn giới tính" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Chọn giới tính</SelectItem>
+                      {genderOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value.toString()}>
                           {option.label}
                         </SelectItem>
                       ))}
@@ -408,15 +470,15 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="status">Trạng thái</Label>
                     <Select
-                      value={watch('status')}
-                      onValueChange={(value) => setValue('status', value as EmployeeStatus)}
+                      value={watch('status')?.toString() || '1'}
+                      onValueChange={(value) => setValue('status', parseInt(value) as EmployeeStatus)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Chọn trạng thái" />
                       </SelectTrigger>
                       <SelectContent>
                         {statusOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
+                          <SelectItem key={option.value} value={option.value.toString()}>
                             {option.label}
                           </SelectItem>
                         ))}

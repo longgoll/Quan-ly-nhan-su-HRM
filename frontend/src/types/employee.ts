@@ -24,22 +24,30 @@ export interface Employee {
 }
 
 export const MaritalStatus = {
-  Single: 'Single',
-  Married: 'Married',
-  Divorced: 'Divorced',
-  Widowed: 'Widowed'
+  Single: 1,
+  Married: 2,
+  Divorced: 3,
+  Widowed: 4
 } as const;
 
 export type MaritalStatus = typeof MaritalStatus[keyof typeof MaritalStatus];
 
 export const EmployeeStatus = {
-  Active: 'Active',
-  Inactive: 'Inactive',
-  Terminated: 'Terminated',
-  OnLeave: 'OnLeave'
+  Active: 1,
+  Inactive: 2,
+  Terminated: 3,
+  OnLeave: 4
 } as const;
 
 export type EmployeeStatus = typeof EmployeeStatus[keyof typeof EmployeeStatus];
+
+export const Gender = {
+  Male: 1,
+  Female: 2,
+  Other: 3
+} as const;
+
+export type Gender = typeof Gender[keyof typeof Gender];
 
 export interface Department {
   id: number;
@@ -84,17 +92,31 @@ export interface Position {
 }
 
 export interface CreateEmployeeRequest {
-  fullName: string;
-  email?: string;
-  phoneNumber?: string;
-  dateOfBirth?: string;
+  userId: number;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  dateOfBirth: string;
+  gender: Gender;
+  identityNumber?: string;
+  identityIssueDate?: string;
+  identityIssuePlace?: string;
   address?: string;
-  idNumber?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  personalPhoneNumber?: string;
+  personalEmail?: string;
   maritalStatus?: MaritalStatus;
+  emergencyContactPhone?: string;
+  emergencyContactName?: string;
+  emergencyContactRelation?: string;
   departmentId?: number;
   positionId?: number;
-  managerId?: number;
+  directManagerId?: number;
+  employeeCode?: string;
   hireDate: string;
+  baseSalary?: number;
 }
 
 export interface UpdateEmployeeRequest {
