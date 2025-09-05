@@ -59,13 +59,19 @@ export interface Department {
 
 export interface Position {
   id: number;
-  name: string;
+  title: string;
+  code?: string;
   description?: string;
-  level: number;
+  requirements?: string;
   departmentId?: number;
+  departmentName?: string;
+  level: number;
+  minSalary?: number;
+  maxSalary?: number;
   isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  employeeCount: number;
   
   // Navigation properties
   department?: Department;
@@ -114,17 +120,26 @@ export interface UpdateDepartmentRequest {
 }
 
 export interface CreatePositionRequest {
-  name: string;
+  title: string;
+  code?: string;
   description?: string;
-  level: number;
+  requirements?: string;
   departmentId?: number;
+  level: number;
+  minSalary?: number;
+  maxSalary?: number;
 }
 
 export interface UpdatePositionRequest {
-  name?: string;
+  title: string;
+  code?: string;
   description?: string;
-  level?: number;
+  requirements?: string;
   departmentId?: number;
+  level: number;
+  minSalary?: number;
+  maxSalary?: number;
+  isActive: boolean;
 }
 
 export interface EmployeeQueryParams {

@@ -369,7 +369,7 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
                       <SelectItem value="none">Chọn vị trí</SelectItem>
                       {filteredPositions?.map((pos) => (
                         <SelectItem key={pos.id} value={pos.id.toString()}>
-                          {pos.name}
+                          {pos.title}
                         </SelectItem>
                       )) || []}
                     </SelectContent>

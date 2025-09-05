@@ -52,6 +52,10 @@ const data = {
           url: "/employees",
         },
         {
+          title: "Cơ cấu tổ chức",
+          url: "/departments/tree",
+        },
+        {
           title: "Phòng ban",
           url: "/departments",
         },

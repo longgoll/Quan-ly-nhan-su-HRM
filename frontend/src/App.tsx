@@ -11,6 +11,8 @@ import DashboardPage from '@/pages/DashboardPage';
 import UserManagementPage from '@/pages/UserManagementPage';
 import EmployeeManagementPage from '@/pages/EmployeeManagementPage';
 import DepartmentManagementPage from '@/pages/DepartmentManagementPage';
+import DepartmentTreePage from '@/pages/DepartmentTreePage';
+import PositionManagementPage from '@/pages/PositionManagementPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import { UserRole } from '@/types/auth';
 
@@ -66,6 +68,26 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute roles={[UserRole.Admin, UserRole.HRManager]}>
             <Layout>
               <DepartmentManagementPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/departments/tree"
+        element={
+          <ProtectedRoute roles={[UserRole.Admin, UserRole.HRManager]}>
+            <Layout>
+              <DepartmentTreePage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/positions"
+        element={
+          <ProtectedRoute roles={[UserRole.Admin, UserRole.HRManager]}>
+            <Layout>
+              <PositionManagementPage />
             </Layout>
           </ProtectedRoute>
         }
