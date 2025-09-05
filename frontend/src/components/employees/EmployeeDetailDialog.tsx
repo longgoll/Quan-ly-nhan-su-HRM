@@ -89,7 +89,7 @@ export const EmployeeDetailDialog: React.FC<EmployeeDetailDialogProps> = ({
                 {getStatusBadge(employee.status)}
               </div>
               <p className="text-lg text-muted-foreground mb-1">
-                {employee.position?.name || 'Chưa có vị trí'} • {employee.department?.name || 'Chưa có phòng ban'}
+                {employee.position?.title || 'Chưa có vị trí'} • {employee.department?.name || 'Chưa có phòng ban'}
               </p>
               <p className="text-sm text-muted-foreground">
                 Mã nhân viên: <span className="font-medium">{employee.employeeCode}</span>
@@ -186,7 +186,7 @@ export const EmployeeDetailDialog: React.FC<EmployeeDetailDialogProps> = ({
 
                 <div>
                   <p className="text-sm text-muted-foreground">Vị trí</p>
-                  <p className="font-medium">{employee.position?.name || '-'}</p>
+                  <p className="font-medium">{employee.position?.title || '-'}</p>
                   {employee.position?.description && (
                     <p className="text-sm text-muted-foreground mt-1">
                       {employee.position.description}
