@@ -10,7 +10,7 @@ import { PositionDialog } from '@/components/positions';
 import { positionApi } from '@/api/position';
 import { departmentApi } from '@/api/department';
 import type { Position, Department } from '@/types/employee';
-import { useToast } from '../hooks/use-toast';
+import { toast } from 'sonner';
 
 export default function PositionManagementPage() {
   const [positions, setPositions] = useState<Position[]>([]);
@@ -21,7 +21,6 @@ export default function PositionManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
-  const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
     try {
@@ -33,15 +32,11 @@ export default function PositionManagementPage() {
       setPositions(positionsData);
       setDepartments(departmentsData);
     } catch {
-      toast({
-        title: 'Lỗi',
-        description: 'Không thể tải dữ liệu',
-        variant: 'destructive',
-      });
+      toast.error('Không thể tải dữ liệu');
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -63,16 +58,9 @@ export default function PositionManagementPage() {
     try {
       await positionApi.deletePosition(id);
       setPositions(positions.filter(p => p.id !== id));
-      toast({
-        title: 'Thành công',
-        description: 'Đã xóa vị trí',
-      });
+      toast.success('Đã xóa vị trí');
     } catch {
-      toast({
-        title: 'Lỗi',
-        description: 'Không thể xóa vị trí',
-        variant: 'destructive',
-      });
+      toast.error('Không thể xóa vị trí');
     }
   };
 

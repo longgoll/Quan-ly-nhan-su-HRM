@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { positionApi } from '@/api/position';
 import type { Position, Department, CreatePositionRequest, UpdatePositionRequest } from '@/types/employee';
-import { useToast } from '../../hooks/use-toast';
+import { toast } from 'sonner';
 
 interface PositionDialogProps {
   open: boolean;
@@ -37,7 +37,6 @@ export function PositionDialog({
     isActive: true
   });
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (position) {
@@ -71,11 +70,7 @@ export function PositionDialog({
     e.preventDefault();
     
     if (!formData.title.trim()) {
-      toast({
-        title: 'Lỗi',
-        description: 'Vui lòng nhập tên vị trí',
-        variant: 'destructive',
-      });
+      toast.error('Vui lòng nhập tên vị trí');
       return;
     }
 
@@ -95,25 +90,15 @@ export function PositionDialog({
 
       if (position) {
         await positionApi.updatePosition(position.id, requestData as UpdatePositionRequest);
-        toast({
-          title: 'Thành công',
-          description: 'Đã cập nhật vị trí',
-        });
+        toast.success('Đã cập nhật vị trí');
       } else {
         await positionApi.createPosition(requestData as CreatePositionRequest);
-        toast({
-          title: 'Thành công',
-          description: 'Đã tạo vị trí mới',
-        });
+        toast.success('Đã tạo vị trí mới');
       }
       
       onSave();
     } catch {
-      toast({
-        title: 'Lỗi',
-        description: position ? 'Không thể cập nhật vị trí' : 'Không thể tạo vị trí',
-        variant: 'destructive',
-      });
+      toast.error(position ? 'Không thể cập nhật vị trí' : 'Không thể tạo vị trí');
     } finally {
       setLoading(false);
     }

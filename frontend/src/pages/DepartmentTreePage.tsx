@@ -8,7 +8,7 @@ import { DepartmentDialog } from '@/components/departments/DepartmentDialog';
 import { departmentApi } from '@/api/department';
 import { employeeApi } from '@/api/employee';
 import type { Department, Employee } from '@/types/employee';
-import { useToast } from '../hooks/use-toast';
+import { toast } from 'sonner';
 
 interface DepartmentTreeNode extends Department {
   children: DepartmentTreeNode[];
@@ -22,7 +22,6 @@ export default function DepartmentTreePage() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
-  const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
     try {
@@ -36,21 +35,18 @@ export default function DepartmentTreePage() {
       setDepartments(departmentTree);
       setAllEmployees(employeesResponse.data);
     } catch {
-      toast({
-        title: 'Lỗi',
-        description: 'Không thể tải dữ liệu',
-        variant: 'destructive',
-      });
+      toast.error('Không thể tải dữ liệu');
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const buildDepartmentTree = (departments: Department[], employees: Employee[]): DepartmentTreeNode[] => {
+  const buildDepartmentTree = useCallback((departments: Department[], employees: Employee[]): DepartmentTreeNode[] => {
     const departmentMap = new Map<number, DepartmentTreeNode>();
     
     // Initialize all departments
@@ -78,7 +74,7 @@ export default function DepartmentTreePage() {
     });
 
     return rootDepartments;
-  };
+  }, []);
 
   const toggleExpanded = (departmentId: number) => {
     const updateExpanded = (nodes: DepartmentTreeNode[]): DepartmentTreeNode[] => {
@@ -93,45 +89,38 @@ export default function DepartmentTreePage() {
     setDepartments(updateExpanded(departments));
   };
 
-  const handleCreate = (parentId?: number) => {
+  const handleCreate = useCallback((parentId?: number) => {
     setEditingDepartment(parentId ? { parentId } as Department : null);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (department: Department) => {
+  const handleEdit = useCallback((department: Department) => {
     setEditingDepartment(department);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = useCallback(async (id: number) => {
     if (!confirm('Bạn có chắc chắn muốn xóa phòng ban này?')) return;
 
     try {
       await departmentApi.deleteDepartment(id);
       await fetchData();
-      toast({
-        title: 'Thành công',
-        description: 'Đã xóa phòng ban',
-      });
+      toast.success('Đã xóa phòng ban');
     } catch {
-      toast({
-        title: 'Lỗi',
-        description: 'Không thể xóa phòng ban',
-        variant: 'destructive',
-      });
+      toast.error('Không thể xóa phòng ban');
     }
-  };
+  }, [fetchData]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     await fetchData();
     setDialogOpen(false);
-  };
+  }, [fetchData]);
 
-  const getManagerName = (managerId?: number) => {
+  const getManagerName = useCallback((managerId?: number) => {
     if (!managerId) return 'Chưa có';
     const manager = allEmployees.find(emp => emp.id === managerId);
     return manager?.fullName || 'Không xác định';
-  };
+  }, [allEmployees]);
 
   const DepartmentTreeItem = ({ department, level = 0 }: { department: DepartmentTreeNode; level?: number }) => {
     const hasChildren = department.children.length > 0;
