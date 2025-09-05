@@ -6,6 +6,7 @@ import { vi } from 'date-fns/locale';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -52,10 +53,10 @@ type FormData = {
   dateOfBirth: Date | undefined;
   address: string;
   idNumber: string;
-  maritalStatus: MaritalStatus | '';
-  departmentId: number | '';
-  positionId: number | '';
-  managerId: number | '';
+  maritalStatus: MaritalStatus | 'none';
+  departmentId: number | 'none';
+  positionId: number | 'none';
+  managerId: number | 'none';
   hireDate: Date | undefined;
   status: EmployeeStatus;
 };
@@ -82,8 +83,8 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const { createEmployee, updateEmployee } = useEmployees();
-  const { departments } = useDepartments();
-  const { positions } = usePositions();
+  const { departments, fetchDepartments } = useDepartments();
+  const { positions, fetchPositions } = usePositions();
 
   const {
     register,
@@ -100,10 +101,10 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       dateOfBirth: undefined,
       address: '',
       idNumber: '',
-      maritalStatus: '',
-      departmentId: '',
-      positionId: '',
-      managerId: '',
+      maritalStatus: 'none',
+      departmentId: 'none',
+      positionId: 'none',
+      managerId: 'none',
       hireDate: new Date(),
       status: 'Active',
     },
@@ -114,9 +115,15 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
   const watchedHireDate = watch('hireDate');
 
   // Filter positions by selected department
-  const filteredPositions = positions.filter(pos => 
-    !watchedDepartmentId || pos.departmentId === watchedDepartmentId
-  );
+  const filteredPositions = positions?.filter(pos => 
+    watchedDepartmentId && watchedDepartmentId !== 'none' && pos.departmentId === watchedDepartmentId
+  ) || [];
+
+  // Fetch departments and positions when component mounts
+  useEffect(() => {
+    fetchDepartments();
+    fetchPositions();
+  }, [fetchDepartments, fetchPositions]);
 
   // Filter potential managers (employees in same department, excluding current employee)
   // This would require an additional API call to get employees by department
@@ -132,10 +139,10 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         dateOfBirth: employee.dateOfBirth ? new Date(employee.dateOfBirth) : undefined,
         address: employee.address || '',
         idNumber: employee.idNumber || '',
-        maritalStatus: employee.maritalStatus || '',
-        departmentId: employee.departmentId || '',
-        positionId: employee.positionId || '',
-        managerId: employee.managerId || '',
+        maritalStatus: employee.maritalStatus || 'none',
+        departmentId: employee.departmentId || 'none',
+        positionId: employee.positionId || 'none',
+        managerId: employee.managerId || 'none',
         hireDate: new Date(employee.hireDate),
         status: employee.status,
       });
@@ -148,10 +155,10 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         dateOfBirth: undefined,
         address: '',
         idNumber: '',
-        maritalStatus: '',
-        departmentId: '',
-        positionId: '',
-        managerId: '',
+        maritalStatus: 'none',
+        departmentId: 'none',
+        positionId: 'none',
+        managerId: 'none',
         hireDate: new Date(),
         status: 'Active',
       });
@@ -169,10 +176,10 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
         dateOfBirth: data.dateOfBirth ? format(data.dateOfBirth, 'yyyy-MM-dd') : undefined,
         address: data.address || undefined,
         idNumber: data.idNumber || undefined,
-        maritalStatus: data.maritalStatus || undefined,
-        departmentId: data.departmentId || undefined,
-        positionId: data.positionId || undefined,
-        managerId: data.managerId || undefined,
+        maritalStatus: data.maritalStatus !== 'none' ? data.maritalStatus : undefined,
+        departmentId: data.departmentId !== 'none' ? data.departmentId : undefined,
+        positionId: data.positionId !== 'none' ? data.positionId : undefined,
+        managerId: data.managerId !== 'none' ? data.managerId : undefined,
         hireDate: format(data.hireDate!, 'yyyy-MM-dd'),
       };
 
@@ -206,6 +213,9 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
           <DialogTitle>
             {employee ? 'Chỉnh sửa nhân viên' : 'Thêm nhân viên mới'}
           </DialogTitle>
+          <DialogDescription>
+            {employee ? 'Cập nhật thông tin của nhân viên' : 'Nhập thông tin để tạo nhân viên mới'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -290,13 +300,14 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="maritalStatus">Tình trạng hôn nhân</Label>
                   <Select
-                    value={watch('maritalStatus') as string}
-                    onValueChange={(value) => setValue('maritalStatus', value as MaritalStatus)}
+                    value={watch('maritalStatus') as string || 'none'}
+                    onValueChange={(value) => setValue('maritalStatus', value === 'none' ? 'none' : value as MaritalStatus)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn tình trạng hôn nhân" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">Chọn tình trạng hôn nhân</SelectItem>
                       {maritalStatusOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -323,21 +334,22 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="departmentId">Phòng ban</Label>
                   <Select
-                    value={watch('departmentId')?.toString() || ''}
+                    value={watch('departmentId')?.toString() || 'none'}
                     onValueChange={(value) => {
-                      setValue('departmentId', value ? parseInt(value) : '');
-                      setValue('positionId', ''); // Reset position when department changes
+                      setValue('departmentId', value === 'none' ? 'none' : parseInt(value));
+                      setValue('positionId', 'none'); // Reset position when department changes
                     }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn phòng ban" />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.map((dept) => (
+                      <SelectItem value="none">Chọn phòng ban</SelectItem>
+                      {departments?.map((dept) => (
                         <SelectItem key={dept.id} value={dept.id.toString()}>
                           {dept.name}
                         </SelectItem>
-                      ))}
+                      )) || []}
                     </SelectContent>
                   </Select>
                 </div>
@@ -345,19 +357,20 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="positionId">Vị trí</Label>
                   <Select
-                    value={watch('positionId')?.toString() || ''}
-                    onValueChange={(value) => setValue('positionId', value ? parseInt(value) : '')}
-                    disabled={!watchedDepartmentId}
+                    value={watch('positionId')?.toString() || 'none'}
+                    onValueChange={(value) => setValue('positionId', value === 'none' ? 'none' : parseInt(value))}
+                    disabled={!watchedDepartmentId || watchedDepartmentId === 'none'}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn vị trí" />
                     </SelectTrigger>
                     <SelectContent>
-                      {filteredPositions.map((pos) => (
+                      <SelectItem value="none">Chọn vị trí</SelectItem>
+                      {filteredPositions?.map((pos) => (
                         <SelectItem key={pos.id} value={pos.id.toString()}>
                           {pos.name}
                         </SelectItem>
-                      ))}
+                      )) || []}
                     </SelectContent>
                   </Select>
                 </div>

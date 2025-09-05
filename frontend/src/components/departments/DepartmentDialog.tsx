@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -36,8 +37,8 @@ interface DepartmentDialogProps {
 type FormData = {
   name: string;
   description: string;
-  parentId: number | '';
-  managerId: number | '';
+  parentId: number | '' | 'none';
+  managerId: number | '' | 'none';
   isActive: boolean;
 };
 
@@ -48,7 +49,7 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
   onSuccess,
 }) => {
   const [loading, setLoading] = useState(false);
-  const { departments, createDepartment, updateDepartment } = useDepartments();
+  const { departments, createDepartment, updateDepartment, fetchDepartments } = useDepartments();
 
   const {
     register,
@@ -61,8 +62,8 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
     defaultValues: {
       name: '',
       description: '',
-      parentId: '',
-      managerId: '',
+      parentId: 'none',
+      managerId: 'none',
       isActive: true,
     },
   });
@@ -71,10 +72,15 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
   const watchedIsActive = watch('isActive');
 
   // Filter out current department and its children from parent options
-  const availableParents = departments.filter(dept => 
+  const availableParents = departments?.filter(dept => 
     dept.id !== department?.id && 
     dept.parentId !== department?.id
-  );
+  ) || [];
+
+  // Fetch departments when component mounts
+  useEffect(() => {
+    fetchDepartments();
+  }, [fetchDepartments]);
 
   useEffect(() => {
     if (department) {
@@ -82,8 +88,8 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
       reset({
         name: department.name,
         description: department.description || '',
-        parentId: department.parentId || '',
-        managerId: department.managerId || '',
+        parentId: department.parentId || 'none',
+        managerId: department.managerId || 'none',
         isActive: department.isActive,
       });
     } else {
@@ -91,8 +97,8 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
       reset({
         name: '',
         description: '',
-        parentId: '',
-        managerId: '',
+        parentId: 'none',
+        managerId: 'none',
         isActive: true,
       });
     }
@@ -105,8 +111,8 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
       const payload = {
         name: data.name,
         description: data.description || undefined,
-        parentId: data.parentId || undefined,
-        managerId: data.managerId || undefined,
+        parentId: (data.parentId && data.parentId !== 'none') ? data.parentId : undefined,
+        managerId: (data.managerId && data.managerId !== 'none') ? data.managerId : undefined,
       };
 
       let success = false;
@@ -136,6 +142,9 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
           <DialogTitle>
             {department ? 'Chỉnh sửa phòng ban' : 'Thêm phòng ban mới'}
           </DialogTitle>
+          <DialogDescription>
+            {department ? 'Cập nhật thông tin phòng ban' : 'Nhập thông tin để tạo phòng ban mới'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -165,19 +174,19 @@ export const DepartmentDialog: React.FC<DepartmentDialogProps> = ({
             <div className="space-y-2">
               <Label htmlFor="parentId">Phòng ban cha</Label>
               <Select
-                value={watchedParentId?.toString() || ''}
-                onValueChange={(value) => setValue('parentId', value ? parseInt(value) : '')}
+                value={watchedParentId?.toString() || 'none'}
+                onValueChange={(value) => setValue('parentId', value === 'none' ? 'none' : parseInt(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn phòng ban cha (không bắt buộc)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Không có phòng ban cha</SelectItem>
-                  {availableParents.map((dept) => (
+                  <SelectItem value="none">Không có phòng ban cha</SelectItem>
+                  {availableParents?.map((dept) => (
                     <SelectItem key={dept.id} value={dept.id.toString()}>
                       {dept.name}
                     </SelectItem>
-                  ))}
+                  )) || []}
                 </SelectContent>
               </Select>
             </div>

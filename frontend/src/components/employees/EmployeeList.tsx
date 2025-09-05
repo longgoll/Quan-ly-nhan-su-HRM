@@ -27,8 +27,8 @@ export const EmployeeList: React.FC = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { employees, loading, fetchEmployees } = useEmployees();
-  const { departments } = useDepartments();
-  const { positions } = usePositions();
+  const { departments, fetchDepartments } = useDepartments();
+  const { positions, fetchPositions } = usePositions();
 
   // Load employees when component mounts or filters change
   useEffect(() => {
@@ -41,6 +41,12 @@ export const EmployeeList: React.FC = () => {
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery, filters, fetchEmployees]);
+
+  // Fetch departments and positions when component mounts
+  useEffect(() => {
+    fetchDepartments();
+    fetchPositions();
+  }, [fetchDepartments, fetchPositions]);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);

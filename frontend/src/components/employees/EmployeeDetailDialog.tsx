@@ -5,6 +5,7 @@ import { Mail, Phone, MapPin, Calendar, Users, Briefcase, Clock } from 'lucide-r
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -69,6 +70,9 @@ export const EmployeeDetailDialog: React.FC<EmployeeDetailDialogProps> = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Chi tiết nhân viên</DialogTitle>
+          <DialogDescription>
+            Xem thông tin chi tiết của nhân viên
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
