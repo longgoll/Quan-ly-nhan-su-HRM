@@ -52,10 +52,6 @@ const data = {
           url: "/employees",
         },
         {
-          title: "Thêm nhân viên",
-          url: "/employees/create",
-        },
-        {
           title: "Phòng ban",
           url: "/departments",
         },
