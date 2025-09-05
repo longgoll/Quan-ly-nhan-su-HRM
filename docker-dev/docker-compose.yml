@@ -1,16 +1,5 @@
 version: '3.8'
 services:
-  backend:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    volumes:
-      - ../backend/appsettings.Development.json:/app/appsettings.Development.json:ro
-    depends_on:
-      - db
-      - minio
   db:
     image: postgres:16
     environment:
