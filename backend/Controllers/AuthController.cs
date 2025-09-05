@@ -131,23 +131,27 @@ namespace backend.Controllers
         /// </summary>
         [HttpGet("me")]
         [Authorize]
-        public ActionResult<ApiResponse<object>> GetCurrentUser()
+        public async Task<ActionResult<ApiResponse<UserDto>>> GetCurrentUser()
         {
-            var userInfo = new
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                Id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-                Username = User.FindFirst(ClaimTypes.Name)?.Value,
-                Email = User.FindFirst(ClaimTypes.Email)?.Value,
-                Role = User.FindFirst(ClaimTypes.Role)?.Value,
-                FullName = User.FindFirst("FullName")?.Value
-            };
+                return Unauthorized(new ApiResponse<UserDto>
+                {
+                    Success = false,
+                    Message = "Không thể xác định người dùng hiện tại"
+                });
+            }
 
-            return Ok(new ApiResponse<object>
+            var result = await _authService.GetUserByIdAsync(userId);
+            
+            if (!result.Success)
             {
-                Success = true,
-                Message = "Lấy thông tin người dùng thành công",
-                Data = userInfo
-            });
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
     }
 }

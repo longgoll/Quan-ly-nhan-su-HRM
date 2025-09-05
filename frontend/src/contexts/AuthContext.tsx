@@ -40,12 +40,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (token && storedUser) {
         try {
+          // Chỉ set user từ localStorage trước
           setUser(JSON.parse(storedUser));
-          // Verify token is still valid
+          
+          // Sau đó verify token và lấy thông tin mới nhất từ server
           const response = await authAPI.getCurrentUser();
-          if (response.success) {
+          if (response.success && response.data) {
             setUser(response.data);
             localStorage.setItem('user', JSON.stringify(response.data));
+          } else {
+            // Nếu token hết hạn hoặc không hợp lệ
+            logout();
           }
         } catch (error) {
           console.error('Auth verification failed:', error);

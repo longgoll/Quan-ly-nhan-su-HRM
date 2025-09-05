@@ -1,16 +1,14 @@
 export interface User {
   id: number;
   username: string;
-  avatar?: string;
   email: string;
   fullName: string;
   phoneNumber?: string;
-  role: UserRole;
+  role: string;
   isActive: boolean;
   isApproved: boolean;
   createdAt: string;
-  updatedAt: string;
-  approvedById?: number;
+  approvedBy?: string;
 }
 
 export const UserRole = {

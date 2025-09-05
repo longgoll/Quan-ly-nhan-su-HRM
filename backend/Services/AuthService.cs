@@ -18,6 +18,7 @@ namespace backend.Services
         Task<ApiResponse<List<UserDto>>> GetPendingUsersAsync();
         Task<ApiResponse<UserDto>> ApproveUserAsync(int userId, int approvedById);
         Task<ApiResponse<UserDto>> RejectUserAsync(int userId);
+        Task<ApiResponse<UserDto>> GetUserByIdAsync(int userId);
     }
 
     public class AuthService : IAuthService
@@ -280,6 +281,43 @@ namespace backend.Services
             }
         }
 
+        public async Task<ApiResponse<UserDto>> GetUserByIdAsync(int userId)
+        {
+            try
+            {
+                var user = await _context.Users
+                    .Include(u => u.ApprovedBy)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    return new ApiResponse<UserDto>
+                    {
+                        Success = false,
+                        Message = "Không tìm thấy người dùng"
+                    };
+                }
+
+                var userDto = MapToUserDto(user);
+
+                return new ApiResponse<UserDto>
+                {
+                    Success = true,
+                    Message = "Lấy thông tin người dùng thành công",
+                    Data = userDto
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<UserDto>
+                {
+                    Success = false,
+                    Message = "Có lỗi xảy ra khi lấy thông tin người dùng",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
         private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -291,7 +329,11 @@ namespace backend.Services
                 new(ClaimTypes.Name, user.Username),
                 new(ClaimTypes.Email, user.Email),
                 new(ClaimTypes.Role, user.Role.ToString()),
-                new("FullName", user.FullName)
+                new("FullName", user.FullName),
+                new("PhoneNumber", user.PhoneNumber ?? ""),
+                new("IsActive", user.IsActive.ToString()),
+                new("IsApproved", user.IsApproved.ToString()),
+                new("CreatedAt", user.CreatedAt.ToString("o"))
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
