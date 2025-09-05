@@ -9,6 +9,8 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import DashboardPage from '@/pages/DashboardPage';
 import UserManagementPage from '@/pages/UserManagementPage';
+import EmployeeManagementPage from '@/pages/EmployeeManagementPage';
+import DepartmentManagementPage from '@/pages/DepartmentManagementPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import { UserRole } from '@/types/auth';
 
@@ -44,6 +46,26 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute roles={[UserRole.Admin, UserRole.HRManager]}>
             <Layout>
               <UserManagementPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employees"
+        element={
+          <ProtectedRoute roles={[UserRole.Admin, UserRole.HRManager, UserRole.Manager]}>
+            <Layout>
+              <EmployeeManagementPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/departments"
+        element={
+          <ProtectedRoute roles={[UserRole.Admin, UserRole.HRManager]}>
+            <Layout>
+              <DepartmentManagementPage />
             </Layout>
           </ProtectedRoute>
         }
