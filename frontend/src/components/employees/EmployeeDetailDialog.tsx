@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import type { Employee, EmployeeStatus } from '@/types/employee';
+import type { Employee, EmployeeStatus, MaritalStatus } from '@/types/employee';
 
 interface EmployeeDetailDialogProps {
   open: boolean;
@@ -23,13 +23,13 @@ interface EmployeeDetailDialogProps {
 
 const getStatusBadge = (status: EmployeeStatus) => {
   const statusConfig = {
-    Active: { label: 'Đang làm việc', variant: 'default' as const },
-    Inactive: { label: 'Tạm nghỉ', variant: 'secondary' as const },
-    Terminated: { label: 'Đã nghỉ việc', variant: 'destructive' as const },
-    OnLeave: { label: 'Đang nghỉ phép', variant: 'outline' as const },
+    1: { label: 'Đang làm việc', variant: 'default' as const }, // Active
+    2: { label: 'Tạm nghỉ', variant: 'secondary' as const }, // Inactive
+    3: { label: 'Đã nghỉ việc', variant: 'destructive' as const }, // Terminated
+    4: { label: 'Đang nghỉ phép', variant: 'outline' as const }, // OnLeave
   };
 
-  const config = statusConfig[status] || statusConfig.Active;
+  const config = statusConfig[status] || statusConfig[1];
   return (
     <Badge variant={config.variant}>
       {config.label}
@@ -37,14 +37,14 @@ const getStatusBadge = (status: EmployeeStatus) => {
   );
 };
 
-const getMaritalStatusLabel = (status?: string) => {
-  const statusMap = {
-    Single: 'Độc thân',
-    Married: 'Đã kết hôn',
-    Divorced: 'Đã ly hôn',
-    Widowed: 'Góa phụ',
+const getMaritalStatusLabel = (status?: MaritalStatus) => {
+  const statusMap: Record<number, string> = {
+    1: 'Độc thân',     // Single
+    2: 'Đã kết hôn',   // Married
+    3: 'Đã ly hôn',    // Divorced
+    4: 'Góa phụ',      // Widowed
   };
-  return status ? statusMap[status as keyof typeof statusMap] || status : '-';
+  return status ? statusMap[status] || '-' : '-';
 };
 
 const getInitials = (name: string) => {
@@ -109,22 +109,22 @@ export const EmployeeDetailDialog: React.FC<EmployeeDetailDialogProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {employee.email && (
+                {employee.personalEmail && (
                   <div className="flex items-center space-x-3">
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">{employee.email}</p>
+                      <p className="font-medium">{employee.personalEmail}</p>
                     </div>
                   </div>
                 )}
 
-                {employee.phoneNumber && (
+                {employee.personalPhoneNumber && (
                   <div className="flex items-center space-x-3">
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Số điện thoại</p>
-                      <p className="font-medium">{employee.phoneNumber}</p>
+                      <p className="font-medium">{employee.personalPhoneNumber}</p>
                     </div>
                   </div>
                 )}
@@ -151,10 +151,10 @@ export const EmployeeDetailDialog: React.FC<EmployeeDetailDialogProps> = ({
                   </div>
                 )}
 
-                {employee.idNumber && (
+                {employee.identityNumber && (
                   <div>
                     <p className="text-sm text-muted-foreground">CMND/CCCD</p>
-                    <p className="font-medium">{employee.idNumber}</p>
+                    <p className="font-medium">{employee.identityNumber}</p>
                   </div>
                 )}
 
@@ -199,12 +199,12 @@ export const EmployeeDetailDialog: React.FC<EmployeeDetailDialogProps> = ({
                   )}
                 </div>
 
-                {employee.manager && (
+                {employee.directManager && (
                   <div>
                     <p className="text-sm text-muted-foreground">Quản lý trực tiếp</p>
-                    <p className="font-medium">{employee.manager.fullName}</p>
+                    <p className="font-medium">{employee.directManager.fullName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {employee.manager.employeeCode}
+                      {employee.directManager.employeeCode}
                     </p>
                   </div>
                 )}
@@ -245,7 +245,10 @@ export const EmployeeDetailDialog: React.FC<EmployeeDetailDialogProps> = ({
                 <div>
                   <p className="text-muted-foreground">Cập nhật lần cuối</p>
                   <p className="font-medium">
-                    {format(new Date(employee.updatedAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                    {employee.updatedAt 
+                      ? format(new Date(employee.updatedAt), 'dd/MM/yyyy HH:mm', { locale: vi })
+                      : 'Chưa cập nhật'
+                    }
                   </p>
                 </div>
               </div>

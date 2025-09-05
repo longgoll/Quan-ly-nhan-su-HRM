@@ -50,13 +50,13 @@ interface EmployeeTableProps {
 
 const getStatusBadge = (status: EmployeeStatus) => {
   const statusConfig = {
-    Active: { label: 'Đang làm việc', variant: 'default' as const },
-    Inactive: { label: 'Tạm nghỉ', variant: 'secondary' as const },
-    Terminated: { label: 'Đã nghỉ việc', variant: 'destructive' as const },
-    OnLeave: { label: 'Đang nghỉ phép', variant: 'outline' as const },
+    1: { label: 'Đang làm việc', variant: 'default' as const }, // Active
+    2: { label: 'Tạm nghỉ', variant: 'secondary' as const }, // Inactive
+    3: { label: 'Đã nghỉ việc', variant: 'destructive' as const }, // Terminated
+    4: { label: 'Đang nghỉ phép', variant: 'outline' as const }, // OnLeave
   };
 
-  const config = statusConfig[status] || statusConfig.Active;
+  const config = statusConfig[status] || statusConfig[1];
   return (
     <Badge variant={config.variant}>
       {config.label}
@@ -198,16 +198,16 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({
                     <div>
                       <div className="font-medium">{employee.fullName}</div>
                       <div className="text-sm text-muted-foreground flex items-center gap-2">
-                        {employee.email && (
+                        {employee.personalEmail && (
                           <span className="flex items-center gap-1">
                             <Mail className="h-3 w-3" />
-                            {employee.email}
+                            {employee.personalEmail}
                           </span>
                         )}
-                        {employee.phoneNumber && (
+                        {employee.personalPhoneNumber && (
                           <span className="flex items-center gap-1">
                             <Phone className="h-3 w-3" />
-                            {employee.phoneNumber}
+                            {employee.personalPhoneNumber}
                           </span>
                         )}
                       </div>
@@ -217,7 +217,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({
                     {employee.department?.name || '-'}
                   </TableCell>
                   <TableCell>
-                    {employee.position?.name || '-'}
+                    {employee.position?.title || '-'}
                   </TableCell>
                   <TableCell>
                     {getStatusBadge(employee.status)}

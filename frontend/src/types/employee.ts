@@ -1,26 +1,39 @@
 export interface Employee {
   id: number;
-  employeeCode: string;
+  userId: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
   fullName: string;
-  email?: string;
-  phoneNumber?: string;
   dateOfBirth?: string;
+  gender: Gender;
+  identityNumber?: string;
+  identityIssueDate?: string;
+  identityIssuePlace?: string;
   address?: string;
-  idNumber?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  personalPhoneNumber?: string;
+  personalEmail?: string;
   maritalStatus?: MaritalStatus;
-  departmentId?: number;
-  positionId?: number;
-  managerId?: number;
+  emergencyContactPhone?: string;
+  emergencyContactName?: string;
+  emergencyContactRelation?: string;
+  employeeCode: string;
   hireDate: string;
+  terminationDate?: string;
   status: EmployeeStatus;
-  isActive: boolean;
+  baseSalary?: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   
   // Navigation properties
   department?: Department;
   position?: Position;
-  manager?: Employee;
+  directManager?: Employee;
 }
 
 export const MaritalStatus = {
@@ -120,17 +133,29 @@ export interface CreateEmployeeRequest {
 }
 
 export interface UpdateEmployeeRequest {
-  fullName?: string;
-  email?: string;
-  phoneNumber?: string;
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
   dateOfBirth?: string;
+  gender?: Gender;
+  identityNumber?: string;
+  identityIssueDate?: string;
+  identityIssuePlace?: string;
   address?: string;
-  idNumber?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  personalPhoneNumber?: string;
+  personalEmail?: string;
   maritalStatus?: MaritalStatus;
+  emergencyContactPhone?: string;
+  emergencyContactName?: string;
+  emergencyContactRelation?: string;
   departmentId?: number;
   positionId?: number;
-  managerId?: number;
+  directManagerId?: number;
   status?: EmployeeStatus;
+  baseSalary?: number;
 }
 
 export interface CreateDepartmentRequest {

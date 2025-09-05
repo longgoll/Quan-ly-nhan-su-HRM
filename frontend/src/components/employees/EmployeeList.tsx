@@ -223,7 +223,7 @@ export const EmployeeList: React.FC = () => {
                 <SelectItem value="all">Tất cả vị trí</SelectItem>
                 {positions?.map((pos) => (
                   <SelectItem key={pos.id} value={pos.id.toString()}>
-                    {pos.name}
+                    {pos.title}
                   </SelectItem>
                 )) || []}
               </SelectContent>
@@ -264,7 +264,7 @@ export const EmployeeList: React.FC = () => {
 
       {/* Employee Table */}
       <EmployeeTable
-        data={employees?.data || []}
+        data={employees || []}
         loading={loading}
         pagination={paginationProps}
         onPageChange={handlePageChange}

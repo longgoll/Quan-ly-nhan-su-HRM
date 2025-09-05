@@ -144,18 +144,18 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       // Populate form for editing
       reset({
         fullName: employee.fullName,
-        email: employee.email || '',
-        phoneNumber: employee.phoneNumber || '',
+        email: employee.personalEmail || '',
+        phoneNumber: employee.personalPhoneNumber || '',
         dateOfBirth: employee.dateOfBirth ? new Date(employee.dateOfBirth) : undefined,
         address: employee.address || '',
-        idNumber: employee.idNumber || '',
+        idNumber: employee.identityNumber || '',
         maritalStatus: employee.maritalStatus || 'none',
-        departmentId: employee.departmentId || 'none',
-        positionId: employee.positionId || 'none',
-        managerId: employee.managerId || 'none',
+        departmentId: employee.department?.id || 'none',
+        positionId: employee.position?.id || 'none',
+        managerId: employee.directManager?.id || 'none',
         hireDate: new Date(employee.hireDate),
         status: employee.status,
-        gender: 'none', // We'll need to add gender to Employee interface later
+        gender: employee.gender || 'none',
       });
     } else {
       // Reset form for creating
@@ -220,16 +220,18 @@ export const EmployeeDialog: React.FC<EmployeeDialogProps> = ({
       if (employee) {
         // Update existing employee - this needs different handling
         const updatePayload = {
-          fullName: data.fullName,
-          email: data.email || undefined,
-          phoneNumber: data.phoneNumber || undefined,
+          firstName: data.fullName.trim().split(' ')[0] || '',
+          lastName: data.fullName.trim().split(' ').slice(1).join(' ') || '',
           dateOfBirth: data.dateOfBirth ? format(data.dateOfBirth, 'yyyy-MM-dd') : undefined,
+          gender: typeof data.gender === 'number' ? data.gender : undefined,
+          identityNumber: data.idNumber || undefined,
           address: data.address || undefined,
-          idNumber: data.idNumber || undefined,
+          personalPhoneNumber: data.phoneNumber || undefined,
+          personalEmail: data.email || undefined,
           maritalStatus: data.maritalStatus !== 'none' ? data.maritalStatus : undefined,
           departmentId: data.departmentId !== 'none' ? data.departmentId : undefined,
           positionId: data.positionId !== 'none' ? data.positionId : undefined,
-          managerId: data.managerId !== 'none' ? data.managerId : undefined,
+          directManagerId: data.managerId !== 'none' ? data.managerId : undefined,
           status: data.status,
         };
         success = await updateEmployee(employee.id, updatePayload as UpdateEmployeeRequest);
